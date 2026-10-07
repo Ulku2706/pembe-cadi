@@ -1,78 +1,426 @@
-<!DOCTYPE html>
+      <!DOCTYPE html>
 <html lang="tr">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> 💖 İyi ki Doğdun Pembe Cadııı 🩷 </title> 
-    <link href="https://fonts.googlepis.com/css2?family=Fira+Code:wght@400;500&family=Pacifico&family=Quicksand:wght&600;700&display=swap" rel="stylesheet">
-    <style>
-      *{
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        user-select: none;
-       }
-        body,html{
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-          background-color: #0c0d11;
-          font-family: 'Fira Code', monospace;
-          color: #fff;
-        }
-      #main-container{
-        display: flex;
-        width: 100vw;
-        height: 100vh;
-        position: relative;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>İyi ki Doğdun Pembe Cadı 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Pacifico&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0c0d11;
+      font-family: 'Fira Code', monospace;
+      color: #fff;
+    }
+
+    /* Ana Düzen: Solda Kalp, Sağda Kod Penceresi (Fotoğraftaki gibi) */
+    #main-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .heart-panel {
+      flex: 1.1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #heart-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .code-panel {
+      flex: 0.9;
+      background: #18191f;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+      z-index: 5;
+    }
+
+    .editor-topbar {
+      height: 38px;
+      background: #131418;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .win-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .w-red { background: #ff5f56; }
+    .w-yellow { background: #ffbd2e; }
+    .w-green { background: #27c93f; }
+    .editor-filename {
+      font-size: 12px;
+      color: #7b7f94;
+      margin-left: 10px;
+    }
+
+    .code-scroll-area {
+      flex: 1;
+      padding: 18px;
+      overflow-y: auto;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #a9b1d6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .code-scroll-area::-webkit-scrollbar {
+      width: 5px;
+    }
+    .code-scroll-area::-webkit-scrollbar-thumb {
+      background: #2f334d;
+      border-radius: 4px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 15px;
+      background: #ff79c6;
+      vertical-align: middle;
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* Altta Çıkacak Mesaj */
+    #bottom-message {
+      position: absolute;
+      bottom: 35px;
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      text-align: center;
+      z-index: 20;
+      opacity: 0;
+      transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      width: 90%;
+    }
+    #bottom-message.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .witch-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 38px;
+      color: #ff9ed2;
+      text-shadow: 0 0 15px rgba(255, 105, 180, 0.8), 0 0 30px rgba(255, 20, 147, 0.6);
+      letter-spacing: 1px;
+    }
+    .witch-sub {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f7d2ea;
+      margin-top: 5px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    /* Giriş Perdesi */
+    #entrance-screen {
+      position: fixed;
+      inset: 0;
+      background: #090a0f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      cursor: pointer;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    #entrance-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .open-gift-btn {
+      background: linear-gradient(135deg, #ff2a8d, #ff79c6);
+      color: #fff;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 16px 38px;
+      border-radius: 50px;
+      border: none;
+      box-shadow: 0 0 30px rgba(255, 42, 141, 0.5);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .open-gift-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 45px rgba(255, 42, 141, 0.8);
+    }
+    .song-credit {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #6a6f8a;
+    }
+
+    /* Mobil Düzeni (Instagram gibi alt alta) */
+    @media (max-width: 820px) {
+      #main-container {
+        flex-direction: column;
       }
-      .heart-panel{
-        flex: 1.1;
-        position: relative;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-      }
-      #heart-canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+      .heart-panel {
+        flex: 1.2;
       }
       .code-panel {
-        flex: 0.9;
-        background: #18191f;
-        display: flex;
-        flex-direction: column;
-        border-left: 1px solid rgba(255, 255, 255, 0.88);
-        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-        z-index: 5;
+        flex: 0.8;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
-      .editor-topbar {
-        height: 38px;
-        background: #131418;
-        display: flex;
-        align-items: center;
-        padding: 0 16px;
-        gap: 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      .code-scroll-area {
+        font-size: 11px;
+        padding: 12px;
       }
-      .win-dot{
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
+      .witch-title {
+        font-size: 26px;
       }
-      .w-red{ background: #ff5f56; }
-      .w-yellow { background: #ffbd2e; }
-      .w-green { background: #27c93f; }
-      .editor-filename { 
-        font-size: 12px;
-        color: #7b7f94;
-        margin-left: 10px;
+      #bottom-message {
+        bottom: 20px;
       }
-        
-      
-          
-    </style>
-  </head>
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Müzik Kaynağı: Antent - hope to see you again -->
+  <!-- Eğer kendi istediğiniz bir MP3 bağlantısı varsa aşağıdaki 'src' kısmına yapıştırabilirsiniz -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_c848f30193.mp3?filename=ambient-piano-amp-strings-10711.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- Açılış Butonu (Mobil Ses İzni İçin Şarttır) -->
+  <div id="entrance-screen">
+    <button class="open-gift-btn">✨ Sürprizi Başlat ✨</button>
+    <div class="song-credit">🎵 Antent - hope to see you again</div>
+  </div>
+
+  <div id="main-container">
+    <!-- Sol: Videodaki Işınsal Çizgilerle Oluşan Pembe Kalp -->
+    <div class="heart-panel">
+      <canvas id="heart-canvas"></canvas>
+      <div id="bottom-message">
+        <div class="witch-title">iyi ki doğdun pembe cadı 💕</div>
+        <div class="witch-sub">✨ nice güzel yaşlara ✨</div>
+      </div>
+    </div>
+
+    <!-- Sağ: Videodaki Python Kod Ekranı -->
+    <div class="code-panel">
+      <div class="editor-topbar">
+        <span class="win-dot w-red"></span>
+        <span class="win-dot w-yellow"></span>
+        <span class="win-dot w-green"></span>
+        <span class="editor-filename">main.py</span>
+      </div>
+      <div class="code-scroll-area">
+        <span id="type-code"></span><span class="cursor"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. VİDEODAKİ BİREBİR KOD METNİ ---
+    const codeString = `import turtle as t, math as m, random as r, time
+
+s = t.Screen(); s.setup(700, 700);
+s.bgcolor("black"); s.tracer(0)
+p = t.Turtle(); p.hideturtle()
+
+def heart(a, scale):
+    x = 16 * (m.sin(a)**3) * scale
+    y = (13*m.cos(a) - 5*m.cos(2*a) - 
+         2*m.cos(3*a) - m.cos(4*a)) * scale
+    return x, y
+
+for i in range(10000):
+    a = r.uniform(0, 2 * m.pi)
+    sc = r.uniform(0.5, 13.5)
+    x, y = heart(a, sc)
+    
+    ang = m.atan2(y, x) + r.uniform(-0.5, 0.5)
+    length = r.uniform(4, 14)
+    
+    p.pencolor(1.0, r.uniform(0.25, 0.56), r.uniform(0.65, 0.85))
+    p.width(r.uniform(0.4, 0.8))
+    p.penup(); p.goto(x, y)
+    p.pendown(); p.goto(x + length * m.cos(ang), y + length * m.sin(ang))
+    
+    if i % 200 == 0: s.update(); time.sleep(0.002)
+
+for i in range(2500):
+    a = r.uniform(0, 2 * m.pi)
+    x, y = heart(a, 14.0)
+    
+    ang = m.atan2(y, x) + r.uniform(-0.35, 0.35)
+    length = r.uniform(10, 22)
+    
+    p.pencolor(1.0, r.uniform(0.45, 0.75), r.uniform(0.75, 0.95))
+    p.penup(); p.goto(x, y)
+    p.pendown(); p.goto(x + length * m.cos(ang), y + length * m.sin(ang))
+
+s.update()
+t.done()`;
+
+    let charIdx = 0;
+    const typeElem = document.getElementById('type-code');
+    const scrollArea = document.querySelector('.code-scroll-area');
+
+    function startTyping() {
+      if (charIdx < codeString.length) {
+        typeElem.textContent += codeString.charAt(charIdx);
+        charIdx++;
+        scrollArea.scrollTop = scrollArea.scrollHeight;
+        setTimeout(startTyping, 18);
+      }
+    }
+
+    // --- 2. FOTOĞRAFTAKİ IŞINSAL / FIRÇA ÇİZGİLİ KALBİN ÇİZİMİ ---
+    const canvas = document.getElementById('heart-canvas');
+    const ctx = canvas.getContext('2d');
+    let cWidth, cHeight;
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      cWidth = canvas.width = rect.width;
+      cHeight = canvas.height = rect.height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function heartMath(a, scale) {
+      const x = 16 * Math.pow(Math.sin(a), 3) * scale;
+      const y = -(13 * Math.cos(a) - 5 * Math.cos(2*a) - 2 * Math.cos(3*a) - Math.cos(4*a)) * scale;
+      return { x, y };
+    }
+
+    // Fotoğraftaki gibi ışınsal çizgiler
+    let lines = [];
+    let currentLineIndex = 0;
+    const TOTAL_INNER = 4500;
+    const TOTAL_OUTER = 1200;
+
+    function generateLines() {
+      lines = [];
+      const isMobile = window.innerWidth < 820;
+      const baseScale = isMobile ? 8.5 : 12;
+
+      // 1. Aşama: İç kıvılcımlar ve ana gövde
+      for (let i = 0; i < TOTAL_INNER; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const sc = 0.5 + Math.random() * (baseScale - 0.5);
+        const pt = heartMath(a, sc);
+
+        const ang = Math.atan2(pt.y, pt.x) + (Math.random() - 0.5);
+        const length = 4 + Math.random() * 11;
+
+        // Fotoğraftaki pembe tonları: RGB(255, 60-140, 160-220)
+        const g = Math.floor(60 + Math.random() * 80);
+        const b = Math.floor(160 + Math.random() * 60);
+        const color = `rgba(255, ${g}, ${b}, ${0.5 + Math.random() * 0.4})`;
+
+        lines.push({
+          x1: pt.x,
+          y1: pt.y,
+          x2: pt.x + length * Math.cos(ang),
+          y2: pt.y + length * Math.sin(ang),
+          color: color,
+          width: 0.6 + Math.random() * 0.8
+        });
+      }
+
+      // 2. Aşama: Dış çeperdeki daha uzun ışınsal fırça çizgileri
+      for (let i = 0; i < TOTAL_OUTER; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const pt = heartMath(a, baseScale);
+
+        const ang = Math.atan2(pt.y, pt.x) + (Math.random() - 0.5) * 0.7;
+        const length = 8 + Math.random() * 18;
+
+        const g = Math.floor(110 + Math.random() * 80);
+        const b = Math.floor(190 + Math.random() * 55);
+        const color = `rgba(255, ${g}, ${b}, ${0.65 + Math.random() * 0.35})`;
+
+        lines.push({
+          x1: pt.x,
+          y1: pt.y,
+          x2: pt.x + length * Math.cos(ang),
+          y2: pt.y + length * Math.sin(ang),
+          color: color,
+          width: 0.8 + Math.random() * 1.0
+        });
+      }
+    }
+
+    function renderStep() {
+      const centerX = cWidth / 2;
+      const centerY = cHeight / 2 - 15;
+
+      // Her karede 30 çizgi çizerek tıpkı turtle gibi yavaş yavaş oluşturur
+      const linesPerFrame = 35;
+      const target = Math.min(currentLineIndex + linesPerFrame, lines.length);
+
+      for (let i = currentLineIndex; i < target; i++) {
+        const l = lines[i];
+        ctx.beginPath();
+        ctx.strokeStyle = l.color;
+        ctx.lineWidth = l.width;
+        ctx.moveTo(centerX + l.x1, centerY + l.y1);
+        ctx.lineTo(centerX + l.x2, centerY + l.y2);
+        ctx.stroke();
+      }
+
+      currentLineIndex = target;
+
+      // Kalp belirginleştikçe alttaki "pembe cadı" yazısı görünür
+      if (currentLineIndex > 2500) {
+        document.getElementById('bottom-message').classList.add('visible');
+      }
+
+      if (currentLineIndex < lines.length) {
+        requestAnimationFrame(renderStep);
+      }
+    }
+
+    // --- 3. BAŞLATMA VE MÜZİK KONTROLÜ ---
+    const entrance = document.getElementById('entrance-screen');
+    const audio = document.getElementById('bg-music');
+
+    entrance.addEventListener('click', () => {
+      entrance.classList.add('hide');
+      audio.play().catch(e => console.log("Otomatik oynatma izni beklendi:", e));
+      startTyping();
+      generateLines();
+      renderStep();
+    });
+  </script>
+</body>
+</html>
